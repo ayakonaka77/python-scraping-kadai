@@ -1,0 +1,17 @@
+import requests
+from bs4 import BeautifulSoup
+# タイトルを取得する対象のURL
+url='https://news.yahoo.co.jp/articles/df295c7919e6407f6abdcd2943dba8a3a3b4189d'
+
+# GETリクエストを送信し、HTMLを取得する
+response=requests.get(url)
+
+# HTMLを解析する
+soup=BeautifulSoup(response.text,'html.parser')
+
+# 記事の各セクションの<p>要素を取得し、テキストを結合する
+article_sections = soup.select('.article_body p')
+article_text = '\n'.join([section.get_text(strip=True) for section in article_sections])
+
+# 記事全文を表示する
+print(article_text)
