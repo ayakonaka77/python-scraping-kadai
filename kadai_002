@@ -1,0 +1,53 @@
+import requests
+import pprint
+from getpass import getpass
+
+#APIキーを指定
+api_key = getpass('APIキーを入力してください:')
+
+#検索駅名を変数search_stationに格納
+search_station = input('検索する駅を入力してください:')
+
+# 入力された駅の緯度経度を取得するAPIエンドポイントURL（APIアクセス接続先）
+url_station = 'https://maps.googleapis.com/maps/api/geocode/json'
+
+# データを取得
+response = requests.get(
+    url_station, 
+    params={
+        'key': api_key,  # APIキーをパラメータに追加
+        'address': search_station  # 駅名を指定
+        }
+)
+
+# レスポンスのJSONを取得
+station_data = response.json()
+
+# 駅の緯度と経度を取得
+latitude = station_data['results'][0]['geometry']['location']['lat']
+longitude = station_data['results'][0]['geometry']['location']['lng']
+
+# レストラン情報を取得するためのAPIエンドポイントURL（APIアクセス接続先）
+url_restaurant = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
+
+# データを取得
+response = requests.get(
+    url_restaurant, 
+    params={
+        'key': api_key,  # APIキーをパラメータに追加
+        'location': f'{latitude},{longitude}',  # 緯度と経度を指定
+        'language': 'ja',  # 言語を日本語に設定
+        'radius': 500,  # 半径500メートル以内
+        'type': 'restaurant'  # レストランのみを検索 
+        }
+)
+
+# レスポンスのJSONを取得
+restaurant_data = response.json()
+
+# レストラン情報を表示
+for restaurant in restaurant_data['results']:
+    print("レストラン名:", restaurant['name'])
+    print("評価:", restaurant.get('rating', '評価なし'))
+    print("住所:", restaurant['vicinity'])
+    print()
